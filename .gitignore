@@ -1,0 +1,9 @@
+packer/*.pkrvars.hcl
+packer/output*
+terraform/*/*.tfvars
+terraform/*/*.tfstate*
+terraform/*/*.lock*
+.terraform/
+terraform_plan
+.env
+data/**/*

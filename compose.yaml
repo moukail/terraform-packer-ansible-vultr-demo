@@ -1,0 +1,18 @@
+services:
+  nginx:
+    image: docker.io/library/nginx:1.31-alpine3.24-slim
+    restart: unless-stopped
+    container_name: file_server
+    ports:
+      - "8081:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro,z
+      - ./data:/var/www/raw_files:ro,z
+
+  tunnel:
+    image: docker.io/cloudflare/cloudflared:latest
+    restart: unless-stopped
+    container_name: cloudflare_tunnel
+    command: tunnel --no-autoupdate run --token $TUNNEL_TOKEN
+    network_mode: host
+

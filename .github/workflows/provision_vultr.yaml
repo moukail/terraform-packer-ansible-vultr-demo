@@ -1,0 +1,41 @@
+name: Provision Vultr Resources
+on: push
+jobs:
+  build-artifact:
+    name: Build RAW image artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@main
+        id: setup
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Packer Init
+        working-directory: packer/
+        run: packer init .
+
+      - name: Packer Build - Branches
+        if: startsWith(github.ref, 'refs/heads/')
+        run: packer build .
+
+  provision:
+    name: Provision Vultr Resources
+    needs: build-artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.7.6
+
+      - name: Initialize Terraform
+        working-directory: terraform/vultr
+        run: terraform init
+
+      - name: Apply Terraform configuration
+        run: terraform init -backend-config=backend.hcl && terraform apply -auto-approve -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" -var="vultr_ssh_key_id=${{ secrets.VULTR_SSH_KEY_ID }}" -var="vultr_ssh_key_name=${{ secrets.VULTR_SSH_KEY_NAME }}"

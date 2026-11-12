@@ -1,0 +1,34 @@
+---
+- name: Base system configuration
+  hosts: default
+  become: true
+
+  tasks:
+    - name: Ensure system is up to date
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+      when: ansible_facts['os_family'] | lower == "redhat"
+
+    - name: Ensure system is up to date
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+      when: ansible_facts['os_family'] | lower == "debian"
+
+    - name: virtualbox guest additions setup
+      ansible.builtin.include_tasks: virtualbox.yml
+      when: 
+        - ansible_facts['virtualization_type'] == "virtualbox"
+        - ansible_facts['distribution'] | lower != "centos"
+        #- ansible_facts['distribution'] | lower != "ubuntu"
+
+    - name: include openssh role
+      ansible.builtin.include_role:
+        name: ansible-role-openssh
+      vars:
+        openssl_version: "3.5.4"
+
+    - name: include python role
+      ansible.builtin.include_role:
+        name: ansible-role-python
