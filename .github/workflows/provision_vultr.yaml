@@ -22,14 +22,40 @@ jobs:
             xorriso \
             ansible
 
-      - name: Verify KVM
+      - name: Diagnose KVM
+        run: |
+          echo "Runner identity:"
+          id
+
+          echo "KVM device:"
+          ls -l /dev/kvm || true
+
+          echo "KVM group:"
+          getent group kvm || true
+
+          echo "KVM access:"
+          if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+            echo "KVM is accessible"
+          else
+            echo "KVM is not accessible"
+          fi
+
+      - name: Configure KVM permissions
         run: |
           if [ ! -e /dev/kvm ]; then
-            echo "::error::KVM is unavailable on this runner."
+            echo "::error::KVM device is unavailable"
             exit 1
           fi
 
-          ls -l /dev/kvm
+          sudo chgrp kvm /dev/kvm
+          sudo chmod 660 /dev/kvm
+
+          if [ ! -r /dev/kvm ] || [ ! -w /dev/kvm ]; then
+            echo "::error::Runner still cannot access KVM"
+            exit 1
+          fi
+
+          echo "KVM permissions configured"
 
       - name: Generate SSH key pair
         run: |
