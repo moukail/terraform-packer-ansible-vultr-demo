@@ -1,4 +1,4 @@
-bucket                      = "terraform-state"
+bucket                      = "terraform"
 key                         = "vultr/terraform.tfstate"
 region                      = "ams1"
 endpoint                    = "https://ams1.vultrobjects.com"
