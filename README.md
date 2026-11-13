@@ -9,8 +9,8 @@ https://registry.terraform.io/providers/cloudflare/cloudflare/latest
 ```bash
 cd cloudflare
 terraform init -upgrade
-terraform plan -out ./cloudflare_plan
-terraform apply "./cloudflare_plan"
+terraform plan -out tfplan
+terraform apply tfplan
 
 docker compose up --build -d
 ```

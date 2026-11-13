@@ -5,6 +5,8 @@ terraform {
       version = "2.33.2"
     }
   }
+
+  backend "s3" {}
 }
 
 provider "vultr" {
@@ -12,8 +14,6 @@ provider "vultr" {
   rate_limit  = 100
   retry_limit = 3
 }
-
-backend "s3" {}
 
 resource "vultr_snapshot_from_url" "my_snapshot" {
   url      = var.my_snapshot_url
