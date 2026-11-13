@@ -13,6 +13,8 @@ provider "vultr" {
   retry_limit = 3
 }
 
+backend "s3" {}
+
 resource "vultr_snapshot_from_url" "my_snapshot" {
   url      = var.my_snapshot_url
   use_uefi = false

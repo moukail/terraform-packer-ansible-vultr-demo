@@ -1,9 +1,21 @@
 name: Provision Vultr Resources
-on: push
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   provision:
     name: Provision Vultr Resources
     runs-on: ubuntu-latest
+
+    env:
+      VULTR_API_KEY: ${{ secrets.VULTR_API_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ams1
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
