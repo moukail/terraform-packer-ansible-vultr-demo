@@ -1,0 +1,52 @@
+name: Provision Vultr Resources
+on: push
+jobs:
+  build-artifact:
+    name: Build RAW image artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Diagnose KVM
+        run: |
+          echo "Runner identity:"
+          id
+
+          echo "KVM device:"
+          ls -l /dev/kvm || true
+
+          echo "KVM group:"
+          getent group kvm || true
+
+          echo "KVM access:"
+          if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+            echo "KVM is accessible"
+          else
+            echo "KVM is not accessible"
+          fi
+
+      - name: Configure KVM permissions
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Adding runner to KVM group"
+          sudo usermod -aG kvm "$USER"
+
+          echo "Checking KVM device"
+          ls -l /dev/kvm
+
+          echo "Testing KVM access"
+          sg kvm -c "id && test -r /dev/kvm && test -w /dev/kvm"
+
+          echo "KVM access successfully verified"
+
+      - name: Verify KVM
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sg kvm -c "id"
+
+          sg kvm -c "test -r /dev/kvm"
+          sg kvm -c "test -w /dev/kvm"
+
+          echo "KVM is accessible"
