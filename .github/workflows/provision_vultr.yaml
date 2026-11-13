@@ -3,7 +3,7 @@ on: push
 jobs:
   build-artifact:
     name: Build RAW image artifact
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, kvm]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
