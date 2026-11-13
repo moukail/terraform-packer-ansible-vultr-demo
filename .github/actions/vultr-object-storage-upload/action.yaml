@@ -3,9 +3,9 @@ description: Upload Packer images to Vultr Object Storage
 
 inputs:
   check-only:
-  description: Only check whether the remote image exists
-  required: false
-  default: "false"
+    description: Only check whether the remote image exists
+    required: false
+    default: "false"
 
   image:
     description: Path to the image file
