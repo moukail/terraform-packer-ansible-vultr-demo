@@ -62,7 +62,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/')
         run: |
           rm -rf "$GITHUB_WORKSPACE/output/almalinux"
-          packer build \
+          PACKER_LOG=1 packer build \
             -var "iso_url=${{ vars.ISO_URL }}" \
             -var "iso_checksum=${{ vars.ISO_CHECKSUM }}" \
             -var "base_os_url=${{ vars.BASE_OS_URL }}" \
