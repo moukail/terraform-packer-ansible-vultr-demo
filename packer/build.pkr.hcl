@@ -48,7 +48,7 @@ source "qemu" "qemu_raw_image" {
   vm_name          = "packer_qemu"
   output_directory = var.output_directory
 
-  accelerator      = "kvm"
+  accelerator      = "tcg"
   format           = "raw"
   headless         = true
   

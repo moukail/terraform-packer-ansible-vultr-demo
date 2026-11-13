@@ -19,7 +19,8 @@ jobs:
             qemu-system-x86 \
             qemu-utils \
             ovmf \
-            xorriso
+            xorriso \
+            ansible
 
       - name: Verify KVM
         run: |
