@@ -28,9 +28,11 @@ jobs:
         run: terraform init -backend-config=backend.hcl 
 
       - name: Terraform Validate
+        working-directory: terraform/vultr
         run: terraform validate
 
       - name: Terraform Plan
+        working-directory: terraform/vultr
         run: terraform plan -out=tfplan
 
       - name: Apply Terraform configuration
