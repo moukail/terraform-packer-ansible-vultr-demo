@@ -48,7 +48,7 @@ source "qemu" "qemu_raw_image" {
   vm_name          = "packer_qemu"
   output_directory = var.output_directory
 
-  accelerator      = "tcg"
+  accelerator      = "kvm"
   format           = "raw"
   headless         = true
   
@@ -59,7 +59,7 @@ source "qemu" "qemu_raw_image" {
   disk_compression = true
 
   qemuargs = [
-    ["-m", "2048M"], ["-smp", "2"], ["-cpu", "max"],
+    ["-m", "2048M"], ["-smp", "2"], ["-cpu", "host"],
   ]
 
   iso_url      = var.iso_url

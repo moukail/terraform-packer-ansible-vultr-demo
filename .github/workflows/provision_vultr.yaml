@@ -41,20 +41,20 @@ jobs:
           fi
 
       - name: Configure KVM permissions
+        shell: bash
         run: |
           echo "Adding runner to KVM group"
-
           sudo usermod -aG kvm "$USER"
 
-          echo "Current KVM device:"
+          echo "Checking KVM device"
           ls -l /dev/kvm
 
-          echo "Applying device permissions"
-          sudo chmod 660 /dev/kvm
-
-          echo "Verifying KVM access"
-          sudo -u "$USER" test -r /dev/kvm
-          sudo -u "$USER" test -w /dev/kvm
+          echo "Testing access through KVM group"
+          sudo sg kvm -c '
+            id
+            test -r /dev/kvm
+            test -w /dev/kvm
+            echo "KVM access successful"
 
       - name: Generate SSH key pair
         run: |
