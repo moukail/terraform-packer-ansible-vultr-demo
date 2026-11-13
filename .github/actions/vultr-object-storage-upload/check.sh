@@ -4,7 +4,7 @@ export AWS_ACCESS_KEY_ID="$INPUT_ACCESS_KEY"
 export AWS_SECRET_ACCESS_KEY="$INPUT_SECRET_KEY"
 export AWS_DEFAULT_REGION="$INPUT_REGION"
 
-OBJECT_KEY="${INPUT_PREFIX}/${GITHUB_SHA}/almalinux-10.raw"
+OBJECT_KEY="${INPUT_PREFIX}/almalinux-10.raw"
 
 if aws s3api head-object \
     --bucket "$INPUT_BUCKET" \
