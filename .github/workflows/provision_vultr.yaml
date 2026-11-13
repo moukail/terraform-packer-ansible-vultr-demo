@@ -24,6 +24,7 @@ jobs:
             ansible
 
       - name: Configure KVM permissions
+        if : runner.os == 'Ubuntu'
         shell: bash
         run: |
           set -euo pipefail
@@ -45,8 +46,6 @@ jobs:
           rm -f "$HOME/.ssh/packer_ansible_key"
           rm -f "$HOME/.ssh/packer_ansible_key.pub"
           ssh-keygen -t ed25519 -f $HOME/.ssh/packer_ansible_key -N "" -q
-          echo "SSH_PRIVATE_KEY_FILE=$HOME/.ssh/packer_ansible_key" >> "$GITHUB_ENV"
-          echo "SSH_PUBLIC_KEY=$(cat $HOME/.ssh/packer_ansible_key.pub)" >> "$GITHUB_ENV"
 
       - name: Packer Init
         working-directory: packer/
@@ -105,6 +104,16 @@ jobs:
           sha256sum $GITHUB_WORKSPACE/output/almalinux/almalinux-10.raw \
             > $GITHUB_WORKSPACE/output/almalinux/SHA256SUMS
       
+      - name: List image artifacts
+        run: |
+          echo "Artifact directory:"
+          ls -lah "$GITHUB_WORKSPACE/output/almalinux/"
+
+          test -s "$GITHUB_WORKSPACE/output/almalinux/almalinux-10.raw"
+          test -s "$GITHUB_WORKSPACE/output/almalinux/SHA256SUMS"
+
+          echo "All expected artifacts exist"
+
       - name: Upload RAW image
         uses: actions/upload-artifact@v4
         with:
@@ -112,6 +121,7 @@ jobs:
           path: $GITHUB_WORKSPACE/output/almalinux/
           if-no-files-found: error
           retention-days: 14
+          compression-level: 0
       
   provision:
     name: Provision Vultr Resources
