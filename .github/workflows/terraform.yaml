@@ -25,13 +25,18 @@ jobs:
 
       - name: Initialize Terraform
         working-directory: terraform/vultr
-        run: terraform init
+        run: terraform init -backend-config=backend.hcl 
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
 
       - name: Apply Terraform configuration
         working-directory: terraform/vultr
         run: |
-          terraform init -backend-config=backend.hcl && \
-          terraform apply -auto-approve \
+          terraform apply -auto-approve tfplan \
           -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" \
           -var="user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
           -var="ssh_key_name=${{ vars.VULTR_SSH_KEY_NAME }}" \

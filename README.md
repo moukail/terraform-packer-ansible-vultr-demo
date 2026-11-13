@@ -18,8 +18,8 @@ docker compose up --build -d
 #### Step 3: Create an instance in Vultr with a snapshot
 ```bash
 terraform init -upgrade
-terraform plan -out ./terraform_plan
-terraform apply "./terraform_plan"
+terraform plan -out tfplan
+terraform apply tfplan
 ```
 
 #### Step 4: test connection
