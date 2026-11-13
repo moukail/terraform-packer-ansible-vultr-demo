@@ -3,12 +3,17 @@ variable "ssh_username" {
   default = "admin"
 }
 
-variable "ssh_private_key_file" {
+variable "user_ssh_public_key" {
   type      = string
   sensitive = true
 }
 
-variable "ssh_public_key" {
+variable "ansible_ssh_private_key_file" {
+  type      = string
+  sensitive = true
+}
+
+variable "ansible_ssh_public_key" {
   type      = string
   sensitive = true
 }
@@ -34,13 +39,19 @@ variable "output_directory" {
   default = "../data/output"
 }
 
+variable "qemu_binary" {
+  type = string
+}
+
 source "qemu" "qemu_raw_image" {
-  qemu_binary      = "/usr/libexec/qemu-kvm"
+  qemu_binary      = var.qemu_binary
   vm_name          = "packer_qemu"
-  output_directory = "${var.output_directory}"
+  output_directory = var.output_directory
+
   accelerator      = "kvm"
   format           = "raw"
   headless         = true
+  
   net_device       = "virtio-net"
   disk_interface   = "virtio"
   disk_size        = "5000M"
@@ -51,15 +62,16 @@ source "qemu" "qemu_raw_image" {
     ["-m", "2048M"], ["-smp", "2"], ["-cpu", "host"],
   ]
 
-  iso_url      = "${var.iso_url}"
-  iso_checksum = "${var.iso_checksum}"
+  iso_url      = var.iso_url
+  iso_checksum = var.iso_checksum
 
   http_content = {
     "/ks.cfg" = templatefile(
       "${path.root}/ks.cfg.pkrtpl.hcl",
       {
         user = var.ssh_username
-        ssh_public_key = var.ssh_public_key
+        user_ssh_public_key = var.user_ssh_public_key
+        ansible_ssh_public_key = var.ansible_ssh_public_key
         base_os_url = var.base_os_url
         app_stream_url = var.app_stream_url
       }
@@ -75,7 +87,7 @@ source "qemu" "qemu_raw_image" {
   ]
 
   ssh_username = var.ssh_username
-  ssh_private_key_file = var.ssh_private_key_file
+  ssh_private_key_file = var.ansible_ssh_private_key_file
   ssh_timeout  = "30m"
 
   shutdown_command = "sudo -S shutdown -P now"
@@ -87,13 +99,23 @@ build {
   ]
 
   provisioner "ansible" {
-    playbook_file        = "./ansible/playbook.yml"
-    galaxy_file          = "./ansible/requirements.yml"
+    playbook_file = "${path.root}/ansible/playbook.yml"
+    galaxy_file   = "${path.root}/ansible/requirements.yml"
+
     galaxy_force_install = true
-    user                 = var.ssh_username
-    use_sftp             = true
+
+    user      = var.ssh_username
+    use_proxy = true
+    use_sftp  = true
+
     ansible_env_vars     = [
       "ANSIBLE_HOST_KEY_CHECKING=False",
+    ]
+
+    extra_arguments = [
+      "--become",
+      "--extra-vars",
+      "ansible_python_interpreter=/usr/bin/python3",
     ]
   }
 }
