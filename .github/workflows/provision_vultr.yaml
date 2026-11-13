@@ -43,18 +43,30 @@ jobs:
       - name: Configure KVM permissions
         shell: bash
         run: |
+          set -euo pipefail
+
           echo "Adding runner to KVM group"
           sudo usermod -aG kvm "$USER"
 
           echo "Checking KVM device"
           ls -l /dev/kvm
 
-          echo "Testing access through KVM group"
-          sudo sg kvm -c '
-            id
-            test -r /dev/kvm
-            test -w /dev/kvm
-            echo "KVM access successful"
+          echo "Testing KVM access"
+          sg kvm -c "id && test -r /dev/kvm && test -w /dev/kvm"
+
+          echo "KVM access successfully verified"
+
+      - name: Verify KVM
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sg kvm -c "id"
+
+          sg kvm -c "test -r /dev/kvm"
+          sg kvm -c "test -w /dev/kvm"
+
+          echo "KVM is accessible"
 
       - name: Generate SSH key pair
         run: |
