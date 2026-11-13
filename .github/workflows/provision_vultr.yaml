@@ -21,6 +21,24 @@ jobs:
             ovmf \
             xorriso
 
+      #- name: Generate SSH key pair
+      #  run: |
+      #    mkdir -p $HOME/.ssh
+      #    ssh-keygen -t rsa -b 4096 -f $HOME/.ssh/packer_key -N "" -q
+      #    echo "SSH public key:"
+      #    cat $HOME/.ssh/packer_key.pub
+
+      - name: Configure SSH key
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PACKER_SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/packer_key
+          chmod 600 ~/.ssh/packer_key
+
+          test -f ~/.ssh/packer_key
+
       - name: Packer Init
         working-directory: packer/
         run: packer init .
@@ -34,7 +52,7 @@ jobs:
             -var "base_os_url=${{ vars.BASE_OS_URL }}" \
             -var "app_stream_url=${{ vars.APP_STREAM_URL }}" \
             -var "output_directory=output/almalinux" \
-            -var "ssh_private_key_file=${{ secrets.SSH_PRIVATE_KEY_FILE }}" \
+            -var "ssh_private_key_file=$HOME/.ssh/packer_key" \
             -var "ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
             -var "ssh_username=${{ secrets.SSH_USERNAME }}" \
             .
@@ -49,7 +67,7 @@ jobs:
             -var "base_os_url=${{ vars.BASE_OS_URL }}" \
             -var "app_stream_url=${{ vars.APP_STREAM_URL }}" \
             -var "output_directory=output/almalinux" \
-            -var "ssh_private_key_file=${{ secrets.SSH_PRIVATE_KEY_FILE }}" \
+            -var "ssh_private_key_file=$HOME/.ssh/packer_key" \
             -var "ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
             -var "ssh_username=${{ secrets.SSH_USERNAME }}" \
             .
