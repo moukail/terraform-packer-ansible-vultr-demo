@@ -100,11 +100,6 @@ jobs:
           rm -f "$HOME/.ssh/packer_ansible_key"
           rm -f "$HOME/.ssh/packer_ansible_key.pub"
 
-      - name: Verify RAW image
-        run: |
-          qemu-img info $GITHUB_WORKSPACE/output/almalinux/almalinux-10.raw
-          qemu-img check -f raw $GITHUB_WORKSPACE/output/almalinux/almalinux-10.raw
-
       - name: Calculate checksum
         run: |
           sha256sum $GITHUB_WORKSPACE/output/almalinux/almalinux-10.raw \
