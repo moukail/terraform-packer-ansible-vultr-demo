@@ -74,7 +74,7 @@ jobs:
 
           rm -rf "$GITHUB_WORKSPACE/output/almalinux"
 
-          sg kvm -c "PACKER_LOG=1 packer build \
+          sg kvm -c "packer build \
             -var 'iso_url=${{ vars.ISO_URL }}' \
             -var 'iso_checksum=${{ vars.ISO_CHECKSUM }}' \
             -var 'base_os_url=${{ vars.BASE_OS_URL }}' \
@@ -86,6 +86,8 @@ jobs:
             -var 'user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}' \
             -var 'qemu_binary=qemu-system-x86_64' \
             ."
+
+            mv $GITHUB_WORKSPACE/output/almalinux/packer_qemu $GITHUB_WORKSPACE/output/almalinux/almalinux-10.raw
 
       - name: Verify RAW image
         run: |
