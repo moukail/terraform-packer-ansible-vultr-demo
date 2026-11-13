@@ -132,13 +132,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.7.6
+        uses: hashicorp/setup-terraform@v4
 
       - name: Initialize Terraform
         working-directory: terraform/vultr
         run: terraform init
 
       - name: Apply Terraform configuration
-        run: terraform init -backend-config=backend.hcl && terraform apply -auto-approve -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" -var="vultr_ssh_key_id=${{ secrets.VULTR_SSH_KEY_ID }}" -var="vultr_ssh_key_name=${{ secrets.VULTR_SSH_KEY_NAME }}"
+        run: |
+          terraform init -backend-config=backend.hcl && \
+          terraform apply -auto-approve \
+          -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" \
+          -var="vultr_ssh_key_id=${{ secrets.VULTR_SSH_KEY_ID }}" \
+          -var="vultr_ssh_key_name=${{ secrets.VULTR_SSH_KEY_NAME }}"
