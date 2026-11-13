@@ -26,7 +26,8 @@ jobs:
           region: ams1
           access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          object-prefix: almalinux_10
+          object-prefix: almalinux
+          image: almalinux10_x86_64.raw
           check-only: "true"
 
   build-artifact:
@@ -130,7 +131,7 @@ jobs:
 
       - name: Calculate checksum
         run: |
-          sha256sum $GITHUB_WORKSPACE/output/almalinux/almalinux-10.raw \
+          sha256sum $GITHUB_WORKSPACE/output/almalinux/almalinux10_x86_64.raw \
             > $GITHUB_WORKSPACE/output/almalinux/SHA256SUMS
       
       - name: List image artifacts
@@ -138,7 +139,7 @@ jobs:
           echo "Artifact directory:"
           ls -lah "$GITHUB_WORKSPACE/output/almalinux/"
 
-          test -s "$GITHUB_WORKSPACE/output/almalinux/almalinux-10.raw"
+          test -s "$GITHUB_WORKSPACE/output/almalinux/almalinux10_x86_64.raw"
           test -s "$GITHUB_WORKSPACE/output/almalinux/SHA256SUMS"
 
           echo "All expected artifacts exist"
@@ -155,12 +156,12 @@ jobs:
       - name: Upload image to Vultr
         uses: ./.github/actions/vultr-object-storage-upload
         with:
-          image: ${{ github.workspace }}/output/almalinux/almalinux-10.raw
           bucket: ${{ vars.VULTR_S3_BUCKET }}
           endpoint: ${{ vars.VULTR_S3_ENDPOINT }}
           access-key: ${{ secrets.VULTR_S3_ACCESS_KEY }}
           secret-key: ${{ secrets.VULTR_S3_SECRET_KEY }}
-          object-prefix: almalinux_10
+          object-prefix: almalinux
+          image: almalinux10_x86_64.raw
 
   provision:
     name: Provision Vultr Resources
@@ -194,4 +195,4 @@ jobs:
           -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" \
           -var="user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
           -var="ssh_key_name=${{ vars.VULTR_SSH_KEY_NAME }}" \
-          -var="my_snapshot_url=https://local.moukail.nl/files/almalinux_10/almalinux10_x86_64.raw"
+          -var="my_snapshot_url=https://local.moukail.nl/files/almalinux/almalinux10_x86_64.raw"
