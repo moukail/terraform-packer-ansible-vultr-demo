@@ -59,7 +59,7 @@ source "qemu" "qemu_raw_image" {
   disk_compression = true
 
   qemuargs = [
-    ["-m", "2048M"], ["-smp", "2"], ["-cpu", "host"],
+    ["-m", "2048M"], ["-smp", "2"], ["-cpu", "max"],
   ]
 
   iso_url      = var.iso_url
