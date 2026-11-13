@@ -53,7 +53,7 @@ source "qemu" "qemu_raw_image" {
   
   net_device       = "virtio-net"
   disk_interface   = "virtio"
-  disk_size        = "5000M"
+  disk_size        = "3000M"
   disk_cache       = "none"
   disk_compression = true
 

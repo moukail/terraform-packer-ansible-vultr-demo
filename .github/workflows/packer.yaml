@@ -122,8 +122,6 @@ jobs:
             -var "vm_name=almalinux10_x86_64.raw" \
             ."
 
-            mv $GITHUB_WORKSPACE/output/almalinux/packer_qemu $GITHUB_WORKSPACE/output/almalinux/almalinux-10.raw
-
       - name: Cleanup SSH keys
         if: always()
         run: |

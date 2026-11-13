@@ -121,3 +121,9 @@ runs:
         #INPUT_MULTIPART_CHUNK_SIZE: ${{ inputs.multipart-chunk-size }}
       run: |
         bash "${{ github.action_path }}/upload.sh"
+
+    - name: Set outputs
+      if: steps.upload.outcome == 'success'
+      run: |
+        echo "image-url=${{ steps.upload.outputs.image-url }}" >> "$GITHUB_OUTPUT"
+        echo "object-key=${{ steps.upload.outputs.object-key }}" >> "$GITHUB_OUTPUT"
