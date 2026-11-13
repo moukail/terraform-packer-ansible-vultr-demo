@@ -6,7 +6,7 @@ variable "ssh_key_name" {
   type = string
   description = "SSH key name"
 }
-variable "ssh_key" {
+variable "user_ssh_public_key" {
   type = string
   description = "SSH public key"
 }

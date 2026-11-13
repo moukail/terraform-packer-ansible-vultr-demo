@@ -87,7 +87,6 @@ chmod 0440 /etc/sudoers.d/${user}
 mkdir -p /home/${user}/.ssh
 
 cat > /home/${user}/.ssh/authorized_keys <<'EOF'
-${user_ssh_public_key}
 ${ansible_ssh_public_key}
 EOF
 

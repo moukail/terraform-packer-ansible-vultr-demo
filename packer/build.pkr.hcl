@@ -3,11 +3,6 @@ variable "ssh_username" {
   default = "admin"
 }
 
-variable "user_ssh_public_key" {
-  type      = string
-  sensitive = true
-}
-
 variable "ansible_ssh_private_key_file" {
   type      = string
   sensitive = true
@@ -43,9 +38,13 @@ variable "qemu_binary" {
   type = string
 }
 
+variable "vm_name" {
+  type = string
+}
+
 source "qemu" "qemu_raw_image" {
   qemu_binary      = var.qemu_binary
-  vm_name          = "packer_qemu"
+  vm_name          = var.vm_name
   output_directory = var.output_directory
 
   accelerator      = "kvm"
@@ -70,7 +69,6 @@ source "qemu" "qemu_raw_image" {
       "${path.root}/ks.cfg.pkrtpl.hcl",
       {
         user = var.ssh_username
-        user_ssh_public_key = var.user_ssh_public_key
         ansible_ssh_public_key = var.ansible_ssh_public_key
         base_os_url = var.base_os_url
         app_stream_url = var.app_stream_url

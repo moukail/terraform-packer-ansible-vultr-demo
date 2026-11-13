@@ -1,8 +1,36 @@
 name: Provision Vultr Resources
-on: push
+on: pull_request
 jobs:
+  check-artifact:
+    name: Check Existing Artifact
+    runs-on: ubuntu-latest
+
+    outputs:
+      artifact_exists: ${{ steps.check.outputs.exists }}
+
+    steps:
+      - name: Check existing artifact
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          EXISTS=$(gh api \
+            repos/${{ github.repository }}/actions/artifacts \
+            --paginate \
+            --jq '[.artifacts[] |
+              select(
+                .name == "almalinux-10-raw" and
+                .expired == false
+              )
+            ] | length > 0')
+
+          echo "Artifact exists: $EXISTS"
+          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
+  
   build-artifact:
     name: Build RAW image artifact
+    needs: check-artifact
+    if: needs.check-artifact.outputs.artifact_exists == 'false'
     runs-on: [self-hosted, linux, x64, kvm]
     steps:
       - name: Checkout repository
@@ -64,7 +92,6 @@ jobs:
             -var "ansible_ssh_private_key_file=$HOME/.ssh/packer_ansible_key" \
             -var "ansible_ssh_public_key=$(cat $HOME/.ssh/packer_ansible_key.pub)" \
             -var "ssh_username=${{ secrets.SSH_USERNAME }}" \
-            -var "user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
             -var "qemu_binary=/usr/libexec/qemu-kvm" \
             .
         
@@ -87,7 +114,6 @@ jobs:
             -var 'ansible_ssh_private_key_file=$HOME/.ssh/packer_ansible_key' \
             -var 'ansible_ssh_public_key=$(cat $HOME/.ssh/packer_ansible_key.pub)' \
             -var 'ssh_username=${{ secrets.SSH_USERNAME }}' \
-            -var 'user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}' \
             -var 'qemu_binary=/usr/libexec/qemu-kvm' \
             ."
 
@@ -125,7 +151,16 @@ jobs:
       
   provision:
     name: Provision Vultr Resources
-    needs: build-artifact
+    needs: 
+      - check-artifact
+      - build-artifact
+    if: |
+      always() &&
+      needs.check-artifact.result == 'success' &&
+      (
+        needs.build-artifact.result == 'success' ||
+        needs.build-artifact.result == 'skipped'
+      )  
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -139,9 +174,11 @@ jobs:
         run: terraform init
 
       - name: Apply Terraform configuration
+        working-directory: terraform/vultr
         run: |
           terraform init -backend-config=backend.hcl && \
           terraform apply -auto-approve \
           -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" \
-          -var="vultr_ssh_key_id=${{ secrets.VULTR_SSH_KEY_ID }}" \
-          -var="vultr_ssh_key_name=${{ secrets.VULTR_SSH_KEY_NAME }}"
+          -var="user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
+          -var="ssh_key_name=${{ vars.VULTR_SSH_KEY_NAME }}" \
+          -var="my_snapshot_url=https://local.moukail.nl/files/almalinux_10/almalinux10_x86_64.raw"

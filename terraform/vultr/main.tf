@@ -41,9 +41,9 @@ resource "vultr_snapshot_from_url" "my_snapshot" {
   }
 }
 
-resource "vultr_ssh_key" "my_key" {
+resource "vultr_ssh_key" "user_ssh_public_key" {
   name    = var.ssh_key_name
-  ssh_key = var.ssh_key
+  ssh_key = var.user_ssh_public_key
 }
 
 resource "vultr_instance" "web" {
@@ -58,7 +58,7 @@ resource "vultr_instance" "web" {
   backups     = "disabled"
   user_scheme = "limited"
   ssh_key_ids = [
-    vultr_ssh_key.my_key.id
+    vultr_ssh_key.user_ssh_public_key.id
   ]
   activation_email = false
 }

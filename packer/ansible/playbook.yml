@@ -22,8 +22,8 @@
       vars:
         openssl_version: "3.5.4"
 
-    #- name: include python role
-    #  ansible.builtin.include_role:
-    #    name: ansible-role-python
-    #  vars:
-    #    python_version: "3.15.2"
+    - name: include python role
+      ansible.builtin.include_role:
+        name: ansible-role-python
+      vars:
+        python_version: "3.15.2"
