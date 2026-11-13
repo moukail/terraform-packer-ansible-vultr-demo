@@ -165,15 +165,15 @@ jobs:
   provision:
     name: Provision Vultr Resources
     needs: 
-      #- check-artifact
+      - check-artifact
       - build-artifact
-    #if: |
-    #  always() &&
-    #  needs.check-artifact.result == 'success' &&
-    #  (
-    #    needs.build-artifact.result == 'success' ||
-    #    needs.build-artifact.result == 'skipped'
-    #  )  
+    if: |
+      always() &&
+      needs.check-artifact.result == 'success' &&
+      (
+        needs.build-artifact.result == 'success' ||
+        needs.build-artifact.result == 'skipped'
+      )  
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
