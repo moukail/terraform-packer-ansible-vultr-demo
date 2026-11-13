@@ -38,8 +38,8 @@ selinux --enforcing
 ################################################################################
 # BaseOS repository
 ################################################################################
-url --url=https://repo.almalinux.org/almalinux/10/BaseOS/x86_64/os/
-repo --name=AppStream --baseurl=https://repo.almalinux.org/almalinux/10/AppStream/x86_64/os/
+url --url=${base_os_url}
+repo --name=AppStream --baseurl=${app_stream_url}
 
 ################################################################################
 # Bootloader (UEFI-safe)

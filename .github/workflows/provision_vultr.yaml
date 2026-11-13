@@ -12,15 +12,59 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            qemu-system-x86 \
+            qemu-utils \
+            ovmf \
+            xorriso
+
       - name: Packer Init
         working-directory: packer/
         run: packer init .
 
+      - name: Validate Packer template
+        working-directory: packer/
+        run: |
+          packer validate \
+            -var "iso_url=${{ vars.ISO_URL }}" \
+            -var "iso_checksum=${{ vars.ISO_CHECKSUM }}" \
+            .
+        
       - name: Packer Build - Branches
         working-directory: packer/
         if: startsWith(github.ref, 'refs/heads/')
-        run: packer build .
+        run: |
+          packer build \
+            -var "iso_url=${{ vars.ISO_URL }}" \
+            -var "iso_checksum=${{ vars.ISO_CHECKSUM }}" \
+            -var "base_os_url=${{ vars.BASE_OS_URL }}" \
+            -var "app_stream_url=${{ vars.APP_STREAM_URL }}" \
+            -var "output_directory=output/almalinux" \
+            -var ssh_private_key_file=${{ secrets.SSH_PRIVATE_KEY_FILE }} \
+            -var ssh_public_key_file=${{ vars.SSH_PUBLIC_KEY_FILE }} \
+            -var "ssh_username=${{ vars.SSH_USERNAME }}" \
+            .
+      - name: Verify RAW image
+        run: |
+          qemu-img info output/almalinux/almalinux-10.raw
+          qemu-img check -f raw output/almalinux/almalinux-10.raw
 
+      - name: Calculate checksum
+        run: |
+          sha256sum output/almalinux/almalinux-10.raw \
+            > output/almalinux/SHA256SUMS
+      
+      - name: Upload RAW image
+        uses: actions/upload-artifact@v4
+        with:
+          name: almalinux-10-raw
+          path: output/almalinux/
+          if-no-files-found: error
+          retention-days: 14
+      
   provision:
     name: Provision Vultr Resources
     needs: build-artifact

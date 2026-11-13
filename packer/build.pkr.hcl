@@ -1,8 +1,3 @@
-variable "almalinux_version" {
-  type    = string
-  default = "10.2"
-}
-
 variable "ssh_username" {
   type    = string
   default = "admin"
@@ -18,25 +13,35 @@ variable "ssh_public_key" {
   sensitive = true
 }
 
-locals {
-  iso_url = "https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-${var.almalinux_version}-x86_64-boot.iso"
+variable "iso_url" {
+  type    = string
 }
 
 variable "iso_checksum" {
   type    = string
-  default = "file:https://repo.almalinux.org/almalinux/10/isos/x86_64/CHECKSUM"
 }
 
-source "qemu" "almalinux10_x86_64" {
+variable "base_os_url" {
+  type = string
+}
+
+variable "app_stream_url" {
+  type = string
+}
+
+variable "output_directory" {
+  type = string
+  default = "../data/output"
+}
+
+source "qemu" "qemu_raw_image" {
   qemu_binary      = "/usr/libexec/qemu-kvm"
-  vm_name          = "packer_almalinux10_x86_64"
-  output_directory = "../data/almalinux10_x86_64"
+  vm_name          = "packer_qemu"
+  output_directory = "${var.output_directory}"
   accelerator      = "kvm"
   format           = "raw"
   headless         = true
-
   net_device       = "virtio-net"
-
   disk_interface   = "virtio"
   disk_size        = "5000M"
   disk_cache       = "none"
@@ -46,15 +51,17 @@ source "qemu" "almalinux10_x86_64" {
     ["-m", "2048M"], ["-smp", "2"], ["-cpu", "host"],
   ]
 
-  iso_url      = "${local.iso_url}"
+  iso_url      = "${var.iso_url}"
   iso_checksum = "${var.iso_checksum}"
 
   http_content = {
-    "/almalinux10_ks.cfg" = templatefile(
-      "${path.root}/almalinux10_ks.cfg.pkrtpl.hcl",
+    "/ks.cfg" = templatefile(
+      "${path.root}/ks.cfg.pkrtpl.hcl",
       {
         user = var.ssh_username
         ssh_public_key = var.ssh_public_key
+        base_os_url = var.base_os_url
+        app_stream_url = var.app_stream_url
       }
     )
   }
@@ -63,7 +70,7 @@ source "qemu" "almalinux10_x86_64" {
 
   boot_command = [
     "e<down><down><end><bs><bs><bs><bs><bs>",
-    "inst.text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/almalinux10_ks.cfg ip=dhcp",
+    "inst.text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg ip=dhcp",
     "<leftCtrlOn>x<leftCtrlOff>"
   ]
 
@@ -76,7 +83,7 @@ source "qemu" "almalinux10_x86_64" {
 
 build {
   sources = [
-    "qemu.almalinux10_x86_64",
+    "qemu.qemu_raw_image",
   ]
 
   provisioner "ansible" {
