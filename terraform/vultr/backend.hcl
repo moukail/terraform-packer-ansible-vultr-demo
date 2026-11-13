@@ -1,7 +1,9 @@
 bucket                      = "terraform"
 key                         = "vultr/terraform.tfstate"
 region                      = "ams1"
-endpoint                    = "https://ams1.vultrobjects.com"
+endpoints = {
+  s3 = "https://ams1.vultrobjects.com"
+}
 skip_credentials_validation = true
 skip_region_validation      = true
 skip_requesting_account_id  = true
