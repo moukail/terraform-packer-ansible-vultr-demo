@@ -5,36 +5,10 @@ on:
     branches:
       - main
 
-jobs:
-  check-artifact:
-    name: Check Existing Artifact
-    runs-on: ubuntu-latest
-
-    outputs:
-      artifact_exists: ${{ steps.check.outputs.exists }}
-
-    steps:
-      - name: Check existing artifact
-        id: check
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          EXISTS=$(gh api \
-            repos/${{ github.repository }}/actions/artifacts \
-            --paginate \
-            --jq '[.artifacts[] |
-              select(
-                .name == "almalinux-10-raw" and
-                .expired == false
-              )
-            ] | length > 0')
-
-          echo "Artifact exists: $EXISTS"
-          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
-  
+jobs:  
   build-artifact:
     name: Build RAW image artifact
-    needs: check-artifact
+    #needs: check-artifact
     #if: needs.check-artifact.outputs.artifact_exists == 'false'
     runs-on: [self-hosted, linux, x64, kvm]
     steps:
@@ -167,15 +141,15 @@ jobs:
   provision:
     name: Provision Vultr Resources
     needs: 
-      - check-artifact
+      #- check-artifact
       - build-artifact
-    if: |
-      always() &&
-      needs.check-artifact.result == 'success' &&
-      (
-        needs.build-artifact.result == 'success' ||
-        needs.build-artifact.result == 'skipped'
-      )  
+    #if: |
+    #  always() &&
+    #  needs.check-artifact.result == 'success' &&
+    #  (
+    #    needs.build-artifact.result == 'success' ||
+    #    needs.build-artifact.result == 'skipped'
+    #  )  
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
