@@ -5,11 +5,31 @@ on:
     branches:
       - main
 
-jobs:  
+jobs:
+  check-artifact:
+    name: Check existing Packer artifact
+    runs-on: ubuntu-latest
+
+    outputs:
+      image-exists: ${{ steps.check.outputs.image-exists }}
+
+    steps:
+      - name: Check Vultr Object Storage
+        id: check
+        uses: ./.github/actions/vultr-object-storage-upload
+        with:
+          bucket: ${{ vars.VULTR_S3_BUCKET }}
+          endpoint: ${{ vars.VULTR_S3_ENDPOINT }}
+          region: ams1
+          access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          object-prefix: almalinux/10
+          check-only: "true"
+
   build-artifact:
     name: Build RAW image artifact
-    #needs: check-artifact
-    #if: needs.check-artifact.outputs.artifact_exists == 'false'
+    needs: check-artifact
+    if: needs.check-artifact.outputs.artifact_exists == 'false'
     runs-on: [self-hosted, linux, x64, kvm]
     steps:
       - name: Checkout repository
@@ -135,10 +155,11 @@ jobs:
         uses: ./.github/actions/vultr-object-storage-upload
         with:
           image: ${{ github.workspace }}/output/almalinux/almalinux-10.raw
-          bucket: packer-images
-          endpoint: https://ams1.vultrobjects.com
+          bucket: ${{ vars.VULTR_S3_BUCKET }}
+          endpoint: ${{ vars.VULTR_S3_ENDPOINT }}
           access-key: ${{ secrets.VULTR_S3_ACCESS_KEY }}
           secret-key: ${{ secrets.VULTR_S3_SECRET_KEY }}
+          object-prefix: almalinux/10
 
   provision:
     name: Provision Vultr Resources

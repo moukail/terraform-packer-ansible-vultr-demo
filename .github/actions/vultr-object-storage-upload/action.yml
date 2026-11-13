@@ -2,6 +2,11 @@ name: Vultr Object Storage Upload
 description: Upload Packer images to Vultr Object Storage
 
 inputs:
+  check-only:
+  description: Only check whether the remote image exists
+  required: false
+  default: "false"
+
   image:
     description: Path to the image file
     required: true
@@ -27,10 +32,10 @@ inputs:
     description: Vultr Object Storage secret key
     required: true
 
-  #object-prefix:
-  #  description: Object key prefix
-  #  required: false
-  #  default: almalinux/10
+  object-prefix:
+    description: Object key prefix
+    required: false
+    default: almalinux/10
 
   #public-read:
   #  description: Make the uploaded image publicly readable
@@ -53,6 +58,10 @@ inputs:
   #  default: 64MB
 
 outputs:
+  image-exists:
+    description: Whether the image already exists remotely
+    value: ${{ steps.check.outputs.image-exists }}
+
   image-url:
     description: Public image URL
     value: ${{ steps.upload.outputs.image-url }}
@@ -73,6 +82,20 @@ runs:
   using: composite
 
   steps:
+    - name: Check if image exists
+      id: check
+      shell: bash
+      env:
+        INPUT_IMAGE: ${{ inputs.image }}
+        INPUT_BUCKET: ${{ inputs.bucket }}
+        INPUT_ENDPOINT: ${{ inputs.endpoint }}
+        INPUT_REGION: ${{ inputs.region }}
+        INPUT_ACCESS_KEY: ${{ inputs.access-key }}
+        INPUT_SECRET_KEY: ${{ inputs.secret-key }}
+        INPUT_PREFIX: ${{ inputs.object-prefix }}
+      run: |
+        bash "${{ github.action_path }}/check.sh"
+
     - name: Install AWS CLI
       shell: bash
       run: |
@@ -91,7 +114,7 @@ runs:
         INPUT_REGION: ${{ inputs.region }}
         INPUT_ACCESS_KEY: ${{ inputs.access-key }}
         INPUT_SECRET_KEY: ${{ inputs.secret-key }}
-        #INPUT_PREFIX: ${{ inputs.object-prefix }}
+        INPUT_PREFIX: ${{ inputs.object-prefix }}
         #INPUT_PUBLIC_READ: ${{ inputs.public-read }}
         #INPUT_VERIFY_UPLOAD: ${{ inputs.verify-upload }}
         #INPUT_MULTIPART_THRESHOLD: ${{ inputs.multipart-threshold }}
