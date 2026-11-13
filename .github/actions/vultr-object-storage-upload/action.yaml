@@ -82,6 +82,13 @@ runs:
   using: composite
 
   steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          awscli
+    
     - name: Check if image exists
       id: check
       shell: bash
@@ -96,16 +103,9 @@ runs:
       run: |
         bash "${{ github.action_path }}/check.sh"
 
-    - name: Install AWS CLI
-      shell: bash
-      run: |
-        if ! command -v aws >/dev/null 2>&1; then
-          echo "AWS CLI is required."
-          exit 1
-        fi
-
     - name: Upload and verify image
       id: upload
+      if: inputs.check-only == 'false' && steps.check.outputs.image-exists == 'false'
       shell: bash
       env:
         INPUT_IMAGE: ${{ inputs.image }}
