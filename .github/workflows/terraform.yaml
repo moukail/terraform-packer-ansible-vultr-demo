@@ -42,9 +42,4 @@ jobs:
 
       - name: Apply Terraform configuration
         working-directory: terraform/vultr
-        run: |
-          terraform apply -auto-approve tfplan \
-          -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" \
-          -var="user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
-          -var="ssh_key_name=${{ vars.VULTR_SSH_KEY_NAME }}" \
-          -var="my_snapshot_url=https://local.moukail.nl/files/almalinux_10/almalinux10_x86_64.raw"
+        run: terraform apply -auto-approve tfplan
