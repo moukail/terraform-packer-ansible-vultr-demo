@@ -42,8 +42,10 @@ jobs:
       - name: Generate SSH key pair
         run: |
           mkdir -p ~/.ssh
+          rm -f "~/.ssh/packer_ansible_key"
+          rm -f "~/.ssh/packer_ansible_key.pub"
           ssh-keygen -t ed25519 -f ~/.ssh/packer_ansible_key -N "" -q
-          echo "SSH_PRIVATE_KEY_FILE=$HOME/.ssh/packer_ansible_key" >> "$GITHUB_ENV"
+          echo "SSH_PRIVATE_KEY_FILE=~/.ssh/packer_ansible_key" >> "$GITHUB_ENV"
           echo "SSH_PUBLIC_KEY=$(cat ~/.ssh/packer_ansible_key.pub)" >> "$GITHUB_ENV"
 
       - name: Packer Init
@@ -63,7 +65,7 @@ jobs:
             -var "ansible_ssh_public_key=$(cat ~/.ssh/packer_ansible_key.pub)" \
             -var "ssh_username=${{ secrets.SSH_USERNAME }}" \
             -var "user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
-            -var "qemu_binary=/usr/libexec/qemu-kvm" \
+            -var "qemu_binary=/usr/libexec/qemu-kvm" \ # For Ubuntu use qemu-system-x86_64
             .
         
       - name: Packer Build - Branches
