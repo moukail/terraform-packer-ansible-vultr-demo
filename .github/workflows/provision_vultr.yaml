@@ -42,20 +42,19 @@ jobs:
 
       - name: Configure KVM permissions
         run: |
-          if [ ! -e /dev/kvm ]; then
-            echo "::error::KVM device is unavailable"
-            exit 1
-          fi
+          echo "Adding runner to KVM group"
 
-          sudo chgrp kvm /dev/kvm
+          sudo usermod -aG kvm "$USER"
+
+          echo "Current KVM device:"
+          ls -l /dev/kvm
+
+          echo "Applying device permissions"
           sudo chmod 660 /dev/kvm
 
-          if [ ! -r /dev/kvm ] || [ ! -w /dev/kvm ]; then
-            echo "::error::Runner still cannot access KVM"
-            exit 1
-          fi
-
-          echo "KVM permissions configured"
+          echo "Verifying KVM access"
+          sudo -u "$USER" test -r /dev/kvm
+          sudo -u "$USER" test -w /dev/kvm
 
       - name: Generate SSH key pair
         run: |
