@@ -22,24 +22,6 @@ jobs:
             xorriso \
             ansible
 
-      - name: Diagnose KVM
-        run: |
-          echo "Runner identity:"
-          id
-
-          echo "KVM device:"
-          ls -l /dev/kvm || true
-
-          echo "KVM group:"
-          getent group kvm || true
-
-          echo "KVM access:"
-          if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
-            echo "KVM is accessible"
-          else
-            echo "KVM is not accessible"
-          fi
-
       - name: Configure KVM permissions
         shell: bash
         run: |
@@ -55,18 +37,6 @@ jobs:
           sg kvm -c "id && test -r /dev/kvm && test -w /dev/kvm"
 
           echo "KVM access successfully verified"
-
-      - name: Verify KVM
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          sg kvm -c "id"
-
-          sg kvm -c "test -r /dev/kvm"
-          sg kvm -c "test -w /dev/kvm"
-
-          echo "KVM is accessible"
 
       - name: Generate SSH key pair
         run: |
@@ -97,21 +67,25 @@ jobs:
         
       - name: Packer Build - Branches
         working-directory: packer/
+        shell: bash
         if: startsWith(github.ref, 'refs/heads/')
         run: |
+          set -euo pipefail
+
           rm -rf "$GITHUB_WORKSPACE/output/almalinux"
-          PACKER_LOG=1 packer build \
-            -var "iso_url=${{ vars.ISO_URL }}" \
-            -var "iso_checksum=${{ vars.ISO_CHECKSUM }}" \
-            -var "base_os_url=${{ vars.BASE_OS_URL }}" \
-            -var "app_stream_url=${{ vars.APP_STREAM_URL }}" \
-            -var "output_directory=$GITHUB_WORKSPACE/output/almalinux" \
-            -var "ansible_ssh_private_key_file=$HOME/.ssh/packer_ansible_key" \
-            -var "ansible_ssh_public_key=$(cat ~/.ssh/packer_ansible_key.pub)" \
-            -var "ssh_username=${{ secrets.SSH_USERNAME }}" \
-            -var "user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
-            -var "qemu_binary=qemu-system-x86_64" \
-            .
+
+          sg kvm -c "PACKER_LOG=1 packer build \
+            -var 'iso_url=${{ vars.ISO_URL }}' \
+            -var 'iso_checksum=${{ vars.ISO_CHECKSUM }}' \
+            -var 'base_os_url=${{ vars.BASE_OS_URL }}' \
+            -var 'app_stream_url=${{ vars.APP_STREAM_URL }}' \
+            -var 'output_directory=$GITHUB_WORKSPACE/output/almalinux' \
+            -var 'ansible_ssh_private_key_file=$HOME/.ssh/packer_ansible_key' \
+            -var 'ansible_ssh_public_key=$(cat ~/.ssh/packer_ansible_key.pub)' \
+            -var 'ssh_username=${{ secrets.SSH_USERNAME }}' \
+            -var 'user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}' \
+            -var 'qemu_binary=qemu-system-x86_64' \
+            ."
 
       - name: Verify RAW image
         run: |
