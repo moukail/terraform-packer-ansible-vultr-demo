@@ -14,6 +14,9 @@ jobs:
       image-exists: ${{ steps.check.outputs.image-exists }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Check Vultr Object Storage
         id: check
         uses: ./.github/actions/vultr-object-storage-upload
