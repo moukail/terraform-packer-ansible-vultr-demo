@@ -3,7 +3,7 @@ name: Provision Vultr Resources
 on:
   push:
     branches:
-      - main
+      - test
 
 jobs:
   provision:

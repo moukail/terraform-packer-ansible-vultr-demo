@@ -1,5 +1,10 @@
 name: Provision Vultr Resources
-on: pull_request
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   check-artifact:
     name: Check Existing Artifact
@@ -30,7 +35,7 @@ jobs:
   build-artifact:
     name: Build RAW image artifact
     needs: check-artifact
-    if: needs.check-artifact.outputs.artifact_exists == 'false'
+    #if: needs.check-artifact.outputs.artifact_exists == 'false'
     runs-on: [self-hosted, linux, x64, kvm]
     steps:
       - name: Checkout repository
@@ -50,6 +55,8 @@ jobs:
             ovmf \
             xorriso \
             ansible
+
+            aws --version
 
       - name: Configure KVM permissions
         if : runner.os == 'Ubuntu'
@@ -95,10 +102,9 @@ jobs:
             -var "qemu_binary=/usr/libexec/qemu-kvm" \
             .
         
-      - name: Packer Build - Branches
+      - name: Packer Build
         working-directory: packer/
         shell: bash
-        if: startsWith(github.ref, 'refs/heads/')
         run: |
           # For Ubuntu use qemu_binary=qemu-system-x86_64
           set -euo pipefail
@@ -140,15 +146,24 @@ jobs:
 
           echo "All expected artifacts exist"
 
-      - name: Upload RAW image
-        uses: actions/upload-artifact@v4
-        with:
-          name: almalinux-10-raw
-          path: ${{ github.workspace }}/output/almalinux/
-          if-no-files-found: error
-          retention-days: 14
-          compression-level: 0
+      #- name: Upload RAW image
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: almalinux-10-raw
+      #    path: ${{ github.workspace }}/output/almalinux/
+      #    if-no-files-found: error
+      #    retention-days: 14
+      #    compression-level: 0
       
+      - name: Upload image to Vultr
+        uses: ./.github/actions/vultr-object-storage-upload
+        with:
+          image: ${{ github.workspace }}/output/almalinux/almalinux-10.raw
+          bucket: packer-images
+          endpoint: https://ams1.vultrobjects.com
+          access-key: ${{ secrets.VULTR_S3_ACCESS_KEY }}
+          secret-key: ${{ secrets.VULTR_S3_SECRET_KEY }}
+
   provision:
     name: Provision Vultr Resources
     needs: 

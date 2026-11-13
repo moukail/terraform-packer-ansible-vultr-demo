@@ -1,0 +1,100 @@
+name: Vultr Object Storage Upload
+description: Upload Packer images to Vultr Object Storage
+
+inputs:
+  image:
+    description: Path to the image file
+    required: true
+
+  bucket:
+    description: Vultr Object Storage bucket
+    required: true
+
+  endpoint:
+    description: Vultr Object Storage endpoint
+    required: true
+
+  region:
+    description: S3 region
+    required: false
+    default: ams1
+
+  access-key:
+    description: Vultr Object Storage access key
+    required: true
+
+  secret-key:
+    description: Vultr Object Storage secret key
+    required: true
+
+  #object-prefix:
+  #  description: Object key prefix
+  #  required: false
+  #  default: almalinux/10
+
+  #public-read:
+  #  description: Make the uploaded image publicly readable
+  #  required: false
+  #  default: "true"
+
+  #verify-upload:
+  #  description: Download and verify uploaded image SHA-256
+  #  required: false
+  #  default: "true"
+
+  #multipart-threshold:
+  #  description: Multipart upload threshold
+  #  required: false
+  #  default: 64MB
+
+  #multipart-chunk-size:
+  #  description: Multipart upload chunk size
+  #  required: false
+  #  default: 64MB
+
+outputs:
+  image-url:
+    description: Public image URL
+    value: ${{ steps.upload.outputs.image-url }}
+
+  object-key:
+    description: Uploaded object key
+    value: ${{ steps.upload.outputs.object-key }}
+
+  #sha256:
+  #  description: SHA-256 checksum
+  #  value: ${{ steps.upload.outputs.sha256 }}
+
+  #image-size:
+  #  description: Image size in bytes
+  #  value: ${{ steps.upload.outputs.image-size }}
+
+runs:
+  using: composite
+
+  steps:
+    - name: Install AWS CLI
+      shell: bash
+      run: |
+        if ! command -v aws >/dev/null 2>&1; then
+          echo "AWS CLI is required."
+          exit 1
+        fi
+
+    - name: Upload and verify image
+      id: upload
+      shell: bash
+      env:
+        INPUT_IMAGE: ${{ inputs.image }}
+        INPUT_BUCKET: ${{ inputs.bucket }}
+        INPUT_ENDPOINT: ${{ inputs.endpoint }}
+        INPUT_REGION: ${{ inputs.region }}
+        INPUT_ACCESS_KEY: ${{ inputs.access-key }}
+        INPUT_SECRET_KEY: ${{ inputs.secret-key }}
+        #INPUT_PREFIX: ${{ inputs.object-prefix }}
+        #INPUT_PUBLIC_READ: ${{ inputs.public-read }}
+        #INPUT_VERIFY_UPLOAD: ${{ inputs.verify-upload }}
+        #INPUT_MULTIPART_THRESHOLD: ${{ inputs.multipart-threshold }}
+        #INPUT_MULTIPART_CHUNK_SIZE: ${{ inputs.multipart-chunk-size }}
+      run: |
+        bash "${{ github.action_path }}/upload.sh"
