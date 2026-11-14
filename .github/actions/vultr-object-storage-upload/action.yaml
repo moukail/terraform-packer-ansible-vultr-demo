@@ -7,7 +7,11 @@ inputs:
     required: false
     default: "false"
 
-  image:
+  image_name:
+    description: Name of the image file
+    required: true
+
+  image_path:
     description: Path to the image file
     required: true
 
@@ -91,7 +95,7 @@ runs:
       id: check
       shell: bash
       env:
-        INPUT_IMAGE: ${{ inputs.image }}
+        IMAGE_NAME: ${{ inputs.image_name }}
         INPUT_BUCKET: ${{ inputs.bucket }}
         INPUT_ENDPOINT: ${{ inputs.endpoint }}
         INPUT_REGION: ${{ inputs.region }}
@@ -106,7 +110,8 @@ runs:
       if: inputs.check-only == 'false' && steps.check.outputs.image-exists == 'false'
       shell: bash
       env:
-        INPUT_IMAGE: ${{ inputs.image }}
+        IMAGE_PATH: ${{ inputs.image_path }}
+        IMAGE_NAME: ${{ inputs.image_name }}
         INPUT_BUCKET: ${{ inputs.bucket }}
         INPUT_ENDPOINT: ${{ inputs.endpoint }}
         INPUT_REGION: ${{ inputs.region }}

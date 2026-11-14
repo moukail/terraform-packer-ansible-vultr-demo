@@ -27,7 +27,8 @@ jobs:
           access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           object-prefix: almalinux
-          image: almalinux10_x86_64.raw
+          image_name: almalinux10_x86_64.raw
+          image_path: ${{ github.workspace }}/output/almalinux/almalinux10_x86_64.raw
           check-only: "true"
 
   build-artifact:
@@ -178,7 +179,8 @@ jobs:
           access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           object-prefix: almalinux
-          image: almalinux10_x86_64.raw
+          image_name: almalinux10_x86_64.raw
+          image_path: ${{ github.workspace }}/output/almalinux/almalinux10_x86_64.raw
 
   provision:
     name: Provision Vultr Resources
