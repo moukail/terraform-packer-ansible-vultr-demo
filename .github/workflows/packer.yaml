@@ -223,6 +223,7 @@ jobs:
           IMAGE_URL: ${{ needs.build-artifact.outputs.image-url || needs.check-artifact.outputs.image-url }}
 
         run: |
+          echo "IMAGE_URL: $IMAGE_URL"
           terraform init \
             -backend-config=backend.hcl \
             -input=false
