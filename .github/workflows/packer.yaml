@@ -199,6 +199,13 @@ jobs:
         needs.build-artifact.result == 'skipped'
       )  
     runs-on: ubuntu-latest
+
+    env:
+      VULTR_API_KEY: ${{ secrets.VULTR_API_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ams1
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -217,16 +224,19 @@ jobs:
             -backend-config=backend.hcl \
             -input=false
 
-      - name: Apply Terraform configuration
+      - name: Terraform Validate
         working-directory: terraform/vultr
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ams1
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: terraform/vultr
         run: |
-          terraform init -backend-config=backend.hcl && \
-          terraform apply -auto-approve \
+          terraform plan -out=tfplan \
           -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" \
           -var="user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
           -var="ssh_key_name=${{ vars.VULTR_SSH_KEY_NAME }}" \
-          -var="my_snapshot_url=${{ needs.build-artifact.outputs.image-url }}" \
+          -var="my_snapshot_url=${{ needs.build-artifact.outputs.image-url }}"
+
+      - name: Apply Terraform configuration
+        working-directory: terraform/vultr
+        run: terraform apply -auto-approve tfplan
