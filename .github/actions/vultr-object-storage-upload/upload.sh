@@ -12,7 +12,7 @@ export AWS_DEFAULT_REGION="$INPUT_REGION"
 
 echo "Uploading image to Vultr Object Storage..."
 
-OBJECT_KEY="${INPUT_PREFIX}/${IMAGE_NAME}"
+OBJECT_KEY="${INPUT_PREFIX}/${INPUT_IMAGE}"
 
 aws s3 cp \
   "$INPUT_IMAGE" \
