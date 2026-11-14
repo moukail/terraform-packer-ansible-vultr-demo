@@ -1,5 +1,5 @@
 bucket                      = "moukail"
-key                         = "vultr/terraform.tfstate"
+key                         = "terraform/terraform.tfstate"
 region                      = "ams1"
 endpoints = {
   s3 = "https://ams1.vultrobjects.com"

@@ -41,26 +41,6 @@ inputs:
     required: false
     default: almalinux
 
-  #public-read:
-  #  description: Make the uploaded image publicly readable
-  #  required: false
-  #  default: "true"
-
-  #verify-upload:
-  #  description: Download and verify uploaded image SHA-256
-  #  required: false
-  #  default: "true"
-
-  #multipart-threshold:
-  #  description: Multipart upload threshold
-  #  required: false
-  #  default: 64MB
-
-  #multipart-chunk-size:
-  #  description: Multipart upload chunk size
-  #  required: false
-  #  default: 64MB
-
 outputs:
   image-exists:
     description: Whether the image already exists remotely
@@ -73,14 +53,6 @@ outputs:
   object-key:
     description: Uploaded object key
     value: ${{ steps.upload.outputs.object-key }}
-
-  #sha256:
-  #  description: SHA-256 checksum
-  #  value: ${{ steps.upload.outputs.sha256 }}
-
-  #image-size:
-  #  description: Image size in bytes
-  #  value: ${{ steps.upload.outputs.image-size }}
 
 runs:
   using: composite
@@ -118,10 +90,6 @@ runs:
         INPUT_ACCESS_KEY: ${{ inputs.access-key }}
         INPUT_SECRET_KEY: ${{ inputs.secret-key }}
         INPUT_PREFIX: ${{ inputs.object-prefix }}
-        #INPUT_PUBLIC_READ: ${{ inputs.public-read }}
-        #INPUT_VERIFY_UPLOAD: ${{ inputs.verify-upload }}
-        #INPUT_MULTIPART_THRESHOLD: ${{ inputs.multipart-threshold }}
-        #INPUT_MULTIPART_CHUNK_SIZE: ${{ inputs.multipart-chunk-size }}
       run: |
         bash "${{ github.action_path }}/upload.sh"
 
@@ -129,6 +97,5 @@ runs:
       #if: steps.upload.outcome == 'success'
       shell: bash
       run: |
-        echo ${{ steps.upload.outputs.image-url || steps.check.outputs.image-url }}
         echo "image-url=${{ steps.upload.outputs.image-url || steps.check.outputs.image-url }}" >> "$GITHUB_OUTPUT"
         echo "object-key=${{ steps.upload.outputs.object-key }}" >> "$GITHUB_OUTPUT"

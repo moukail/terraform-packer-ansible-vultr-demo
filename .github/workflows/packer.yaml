@@ -3,7 +3,7 @@ name: Provision Vultr Resources
 on:
   push:
     branches:
-      - main
+      - test
 
 jobs:
   check-artifact:
@@ -54,11 +54,6 @@ jobs:
         id: os
         run: |
           source /etc/os-release
-
-          echo "Distribution: $ID"
-          echo "Version: $VERSION_ID"
-          echo "Family: ${ID_LIKE:-unknown}"
-          echo "Pretty name: $PRETTY_NAME"
 
           echo "OS_DISTRIBUTION=$ID" >> "$GITHUB_OUTPUT"
           echo "OS_FAMILY=${ID_LIKE:-unknown}" >> "$GITHUB_OUTPUT"
@@ -155,25 +150,6 @@ jobs:
         run: |
           sha256sum $GITHUB_WORKSPACE/output/almalinux/almalinux10_x86_64.raw \
             > $GITHUB_WORKSPACE/output/almalinux/SHA256SUMS
-      
-      - name: List image artifacts
-        run: |
-          echo "Artifact directory:"
-          ls -lah "$GITHUB_WORKSPACE/output/almalinux/"
-
-          test -s "$GITHUB_WORKSPACE/output/almalinux/almalinux10_x86_64.raw"
-          test -s "$GITHUB_WORKSPACE/output/almalinux/SHA256SUMS"
-
-          echo "All expected artifacts exist"
-
-      #- name: Upload RAW image
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: almalinux-10-raw
-      #    path: ${{ github.workspace }}/output/almalinux/
-      #    if-no-files-found: error
-      #    retention-days: 14
-      #    compression-level: 0
       
       - name: Upload image to Vultr
         uses: ./.github/actions/vultr-object-storage-upload
