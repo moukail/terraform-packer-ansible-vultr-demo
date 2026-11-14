@@ -55,6 +55,7 @@ jobs:
           echo "Pretty name: $PRETTY_NAME"
 
           echo "OS_DISTRIBUTION=$ID" >> "$GITHUB_OUTPUT"
+          echo "OS_FAMILY=${ID_LIKE:-unknown}" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
         if: ${{ env.OS_DISTRIBUTION }} == 'ubuntu'
@@ -173,6 +174,7 @@ jobs:
         with:
           bucket: ${{ vars.AWS_S3_BUCKET }}
           endpoint: ${{ vars.VULTR_S3_ENDPOINT }}
+          region: ams1
           access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           object-prefix: almalinux

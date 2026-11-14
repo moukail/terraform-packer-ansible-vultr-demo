@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -Eeuo pipefail
+
 export AWS_ACCESS_KEY_ID="$INPUT_ACCESS_KEY"
 export AWS_SECRET_ACCESS_KEY="$INPUT_SECRET_KEY"
 export AWS_DEFAULT_REGION="$INPUT_REGION"

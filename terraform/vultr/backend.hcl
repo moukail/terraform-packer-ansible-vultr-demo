@@ -1,4 +1,4 @@
-bucket                      = "terraform"
+bucket                      = "moukail"
 key                         = "vultr/terraform.tfstate"
 region                      = "ams1"
 endpoints = {

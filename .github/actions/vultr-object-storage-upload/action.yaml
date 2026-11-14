@@ -85,9 +85,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          awscli
+        curl -fsSL https://awscli.amazonaws.com/v2/install.sh | bash
     
     - name: Check if image exists
       id: check
