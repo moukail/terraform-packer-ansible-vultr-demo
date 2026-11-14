@@ -44,6 +44,12 @@ jobs:
         uses: hashicorp/setup-packer@main
         id: setup
 
+      - name: Get Runner OS
+        id: os
+        run: |
+          echo "Runner OS: ${{ runner.os }}"
+          echo "os=$(uname -s | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
       - name: Install dependencies
         if: runner.os == 'ubuntu-latest'
         run: |
