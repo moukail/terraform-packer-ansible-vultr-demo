@@ -47,7 +47,13 @@ jobs:
       - name: Get Runner OS
         id: os
         run: |
-          echo "Runner OS: ${{ runner.os }}"
+          source /etc/os-release
+
+          echo "Distribution: $ID"
+          echo "Version: $VERSION_ID"
+          echo "Family: ${ID_LIKE:-unknown}"
+          echo "Pretty name: $PRETTY_NAME"
+
           echo "os=$(uname -s | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
