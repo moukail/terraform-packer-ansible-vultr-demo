@@ -45,7 +45,7 @@ jobs:
         id: setup
 
       - name: Install dependencies
-        if : runner.os == 'ubuntu-latest'
+        if: runner.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -58,7 +58,7 @@ jobs:
             aws --version
 
       - name: Configure KVM permissions
-        if : runner.os == 'ubuntu-latest'
+        if: runner.os == 'ubuntu-latest'
         shell: bash
         run: |
           set -euo pipefail
