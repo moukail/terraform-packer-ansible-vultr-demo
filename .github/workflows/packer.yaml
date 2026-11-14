@@ -54,10 +54,12 @@ jobs:
           echo "Family: ${ID_LIKE:-unknown}"
           echo "Pretty name: $PRETTY_NAME"
 
+          echo "OS_DISTRIBUTION=$ID" >> "$GITHUB_OUTPUT"
           echo "os=$(uname -s | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo $(uname -s | tr '[:upper:]' '[:lower:]')
 
       - name: Install dependencies
-        if: runner.os == 'ubuntu-latest'
+        if: runner.os == 'ubuntu'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
