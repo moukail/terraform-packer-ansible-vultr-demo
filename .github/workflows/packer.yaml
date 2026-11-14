@@ -37,6 +37,10 @@ jobs:
     if: needs.check-artifact.outputs.image-exists == 'false'
     #runs-on: [self-hosted, linux, x64, kvm]
     runs-on: ubuntu-latest
+
+    outputs:
+      image-url: ${{ steps.check.outputs.image-url }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

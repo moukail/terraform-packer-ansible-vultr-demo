@@ -23,9 +23,20 @@ aws s3 cp \
   --only-show-errors
 
 # --------------------------------------------------
-# Generate public URL
+# Set object ACL
 # --------------------------------------------------
-IMAGE_URL="test"
+
+  echo "Setting public-read ACL..."
+
+  aws s3api put-object-acl \
+    --bucket "$INPUT_BUCKET" \
+    --key "$OBJECT_KEY" \
+    --acl public-read \
+    --endpoint-url "$INPUT_ENDPOINT" \
+    --region "$INPUT_REGION"
+
+source .github/actions/vultr-object-storage-upload/image_url.sh
+
 # --------------------------------------------------
 # GitHub Actions outputs
 # --------------------------------------------------
