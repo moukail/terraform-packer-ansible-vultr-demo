@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      image-url: ${{ steps.check.outputs.image-url }}
+      image-url: ${{ steps.upload.outputs.image-url }}
 
     steps:
       - name: Checkout repository

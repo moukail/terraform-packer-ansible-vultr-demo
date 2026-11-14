@@ -68,7 +68,7 @@ outputs:
 
   image-url:
     description: Public image URL
-    value: ${{ steps.upload.outputs.image-url }}
+    value: ${{ steps.check.outputs.image-url }}
 
   object-key:
     description: Uploaded object key
@@ -105,6 +105,8 @@ runs:
       run: |
         bash "${{ github.action_path }}/check.sh"
 
+        echo "image-url=${{ steps.check.outputs.image-url }}" >> "$GITHUB_OUTPUT"
+
     - name: Upload and verify image
       id: upload
       if: inputs.check-only == 'false' && steps.check.outputs.image-exists == 'false'
@@ -125,9 +127,10 @@ runs:
       run: |
         bash "${{ github.action_path }}/upload.sh"
 
+        echo "image-url=${{ steps.upload.outputs.image-url }}" >> "$GITHUB_OUTPUT"
+
     - name: Set outputs
       if: steps.upload.outcome == 'success'
       shell: bash
       run: |
-        echo "image-url=${{ steps.upload.outputs.image-url }}" >> "$GITHUB_OUTPUT"
         echo "object-key=${{ steps.upload.outputs.object-key }}" >> "$GITHUB_OUTPUT"
