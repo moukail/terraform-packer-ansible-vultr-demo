@@ -108,6 +108,7 @@ jobs:
         shell: bash
         run: |
           # For Ubuntu use qemu_binary=qemu-system-x86_64
+          # For RHEL use qemu_binary=/usr/libexec/qemu-kvm
           set -euo pipefail
 
           rm -rf "$GITHUB_WORKSPACE/output/almalinux"
@@ -121,7 +122,7 @@ jobs:
             -var 'ansible_ssh_private_key_file=$HOME/.ssh/packer_ansible_key' \
             -var 'ansible_ssh_public_key=$(cat $HOME/.ssh/packer_ansible_key.pub)' \
             -var 'ssh_username=${{ secrets.SSH_USERNAME }}' \
-            -var 'qemu_binary=/usr/libexec/qemu-kvm' \
+            -var 'qemu_binary=qemu-system-x86_64' \
             -var "vm_name=almalinux10_x86_64.raw" \
             ."
 
