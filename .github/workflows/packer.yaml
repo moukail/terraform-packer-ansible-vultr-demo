@@ -55,11 +55,9 @@ jobs:
           echo "Pretty name: $PRETTY_NAME"
 
           echo "OS_DISTRIBUTION=$ID" >> "$GITHUB_OUTPUT"
-          echo "os=$(uname -s | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
-          echo $(uname -s | tr '[:upper:]' '[:lower:]')
 
       - name: Install dependencies
-        if: runner.os == 'ubuntu'
+        if: ${{ env.OS_DISTRIBUTION }} == 'ubuntu'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -72,7 +70,7 @@ jobs:
             aws --version
 
       - name: Configure KVM permissions
-        if: runner.os == 'ubuntu-latest'
+        if: ${{ env.OS_DISTRIBUTION }} == 'ubuntu'
         shell: bash
         run: |
           set -euo pipefail
