@@ -1,3 +1,32 @@
+#### AWS S3
+```bash
+# Install AWS CLI
+curl -fsSL https://awscli.amazonaws.com/v2/install.sh | bash
+
+aws configure
+
+export AWS_REGION="eu-central-1"
+export BUCKET_NAME="moukail"
+export ACCESS_POINT_NAME="moukail-ap"
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity \
+  --query Account \
+  --output text)
+
+# Create S# Bucket
+aws s3api create-bucket \
+  --bucket "$BUCKET_NAME" \
+  --region "$AWS_REGION" \
+  --create-bucket-configuration \
+    LocationConstraint="$AWS_REGION"
+
+# Create S3 Access Point
+aws s3control create-access-point \
+  --account-id "$AWS_ACCOUNT_ID" \
+  --name "$ACCESS_POINT_NAME" \
+  --bucket "$BUCKET_NAME"
+
+```
+
 #### Step 1: Build RAW image with Packer
 ```bash
 packer init .

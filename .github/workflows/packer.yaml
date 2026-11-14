@@ -21,7 +21,7 @@ jobs:
         id: check
         uses: ./.github/actions/vultr-object-storage-upload
         with:
-          bucket: ${{ vars.VULTR_S3_BUCKET }}
+          bucket: ${{ vars.AWS_S3_BUCKET }}
           endpoint: ${{ vars.VULTR_S3_ENDPOINT }}
           region: ams1
           access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -34,7 +34,8 @@ jobs:
     name: Build RAW image artifact
     needs: check-artifact
     if: needs.check-artifact.outputs.image-exists == 'false'
-    runs-on: [self-hosted, linux, x64, kvm]
+    #runs-on: [self-hosted, linux, x64, kvm]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -88,6 +89,7 @@ jobs:
         working-directory: packer/
         run: |
           # For Ubuntu use qemu_binary=qemu-system-x86_64
+          # For RHEL use qemu_binary=/usr/libexec/qemu-kvm
           packer validate \
             -var "iso_url=${{ vars.ISO_URL }}" \
             -var "iso_checksum=${{ vars.ISO_CHECKSUM }}" \
@@ -97,7 +99,7 @@ jobs:
             -var "ansible_ssh_private_key_file=$HOME/.ssh/packer_ansible_key" \
             -var "ansible_ssh_public_key=$(cat $HOME/.ssh/packer_ansible_key.pub)" \
             -var "ssh_username=${{ secrets.SSH_USERNAME }}" \
-            -var "qemu_binary=/usr/libexec/qemu-kvm" \
+            -var "qemu_binary=qemu-system-x86_64" \
             -var "vm_name=almalinux10_x86_64.raw" \
             .
         
@@ -156,10 +158,10 @@ jobs:
       - name: Upload image to Vultr
         uses: ./.github/actions/vultr-object-storage-upload
         with:
-          bucket: ${{ vars.VULTR_S3_BUCKET }}
+          bucket: ${{ vars.AWS_S3_BUCKET }}
           endpoint: ${{ vars.VULTR_S3_ENDPOINT }}
-          access-key: ${{ secrets.VULTR_S3_ACCESS_KEY }}
-          secret-key: ${{ secrets.VULTR_S3_SECRET_KEY }}
+          access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           object-prefix: almalinux
           image: almalinux10_x86_64.raw
 
