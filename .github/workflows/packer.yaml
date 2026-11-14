@@ -12,6 +12,7 @@ jobs:
 
     outputs:
       image-exists: ${{ steps.check.outputs.image-exists }}
+      image-url: ${{ steps.check.outputs.image-url }}
 
     steps:
       - name: Checkout repository
@@ -219,6 +220,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ams1
+          IMAGE_URL: ${{ needs.build-artifact.outputs.image-url || needs.check-artifact.outputs.image-url }}
+
         run: |
           terraform init \
             -backend-config=backend.hcl \
@@ -235,8 +238,9 @@ jobs:
           -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" \
           -var="user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
           -var="ssh_key_name=${{ vars.VULTR_SSH_KEY_NAME }}" \
-          -var="my_snapshot_url=${{ needs.build-artifact.outputs.image-url }}"
+          -var="my_snapshot_url=$IMAGE_URL"
 
       - name: Apply Terraform configuration
         working-directory: terraform/vultr
         run: terraform apply -auto-approve tfplan
+
