@@ -206,6 +206,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ams1
+      IMAGE_URL: ${{ needs.build-artifact.outputs.image-url || needs.check-artifact.outputs.image-url }}
 
     steps:
       - name: Checkout repository
@@ -216,12 +217,6 @@ jobs:
 
       - name: Initialize Terraform
         working-directory: terraform/vultr
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ams1
-          IMAGE_URL: ${{ needs.build-artifact.outputs.image-url || needs.check-artifact.outputs.image-url }}
-
         run: |
           terraform init \
             -backend-config=backend.hcl \
@@ -234,7 +229,6 @@ jobs:
       - name: Terraform Plan
         working-directory: terraform/vultr
         run: |
-          echo "IMAGE_URL: $IMAGE_URL"
           terraform plan -out=tfplan \
           -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" \
           -var="user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
