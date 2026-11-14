@@ -17,11 +17,13 @@ if aws s3api head-object \
 
     source .github/actions/vultr-object-storage-upload/image_url.sh
 
+    echo "Image already exists: $OBJECT_KEY"
+
     {
         echo "image-url=${IMAGE_URL}"
         echo "object-key=${OBJECT_KEY}"
-        echo "image-exists=true" >> "$GITHUB_OUTPUT"
-        echo "Image already exists: $OBJECT_KEY"
+        echo "image-exists=true"
+
     } >> "$GITHUB_OUTPUT"
 
 else
