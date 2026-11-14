@@ -129,5 +129,6 @@ runs:
       if: steps.upload.outcome == 'success'
       shell: bash
       run: |
+        echo ${{ steps.check.outputs.image-url }}
         echo "image-url=${{ steps.check.outputs.image-url }}" >> "$GITHUB_OUTPUT"
         echo "object-key=${{ steps.upload.outputs.object-key }}" >> "$GITHUB_OUTPUT"
