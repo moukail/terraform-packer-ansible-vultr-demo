@@ -3,36 +3,8 @@ name: Provision Vultr Resources
 on: [workflow_call]
 
 jobs:
-  check-artifact:
-    name: Check existing Packer artifact
-    runs-on: ubuntu-latest
-
-    outputs:
-      image-exists: ${{ steps.check.outputs.image-exists }}
-      image-url: ${{ steps.check.outputs.image-url }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check Vultr Object Storage
-        id: check
-        uses: ./.github/actions/vultr-object-storage-upload
-        with:
-          bucket: ${{ vars.AWS_S3_BUCKET }}
-          endpoint: ${{ vars.VULTR_S3_ENDPOINT }}
-          region: ams1
-          access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          object-prefix: almalinux
-          image_name: almalinux10_x86_64.raw
-          image_path: ${{ github.workspace }}/output/almalinux/almalinux10_x86_64.raw
-          check-only: "true"
-
   build-artifact:
     name: Build RAW image artifact
-    needs: check-artifact
-    if: needs.check-artifact.outputs.image-exists == 'false'
     #runs-on: [self-hosted, linux, x64, kvm]
     runs-on: ubuntu-latest
 

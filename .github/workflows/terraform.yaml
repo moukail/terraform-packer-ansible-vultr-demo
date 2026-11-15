@@ -9,16 +9,7 @@ jobs:
     defaults:
       run:
         working-directory: ./terraform/vultr
-    needs: 
-      - check-artifact
-      - build-artifact
-    if: |
-      always() &&
-      needs.check-artifact.result == 'success' &&
-      (
-        needs.build-artifact.result == 'success' ||
-        needs.build-artifact.result == 'skipped'
-      )
+
     env:
       VULTR_API_KEY: ${{ secrets.VULTR_API_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
