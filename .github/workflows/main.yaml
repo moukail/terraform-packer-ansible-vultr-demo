@@ -1,0 +1,16 @@
+name: Demo 
+on: 
+  push: 
+    branches:
+      - main
+
+jobs:
+  packer:
+    name: Build with packer
+    uses: ./.github/workflows/packer.yaml
+    secrets: inherit
+  terraform:
+    name: Provision with terraform
+    needs: [packer]
+    uses: ./.github/workflows/terraform.yaml
+    secrets: inherit

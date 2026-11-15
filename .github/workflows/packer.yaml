@@ -1,9 +1,6 @@
 name: Provision Vultr Resources
 
-on:
-  push:
-    branches:
-      - test
+on: [workflow_call]
 
 jobs:
   check-artifact:
@@ -162,55 +159,3 @@ jobs:
           object-prefix: almalinux
           image_name: almalinux10_x86_64.raw
           image_path: ${{ github.workspace }}/output/almalinux/almalinux10_x86_64.raw
-
-  provision:
-    name: Provision Vultr Resources
-    needs: 
-      - check-artifact
-      - build-artifact
-    if: |
-      always() &&
-      needs.check-artifact.result == 'success' &&
-      (
-        needs.build-artifact.result == 'success' ||
-        needs.build-artifact.result == 'skipped'
-      )  
-    runs-on: ubuntu-latest
-
-    env:
-      VULTR_API_KEY: ${{ secrets.VULTR_API_KEY }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ams1
-      IMAGE_URL: ${{ needs.build-artifact.outputs.image-url || needs.check-artifact.outputs.image-url }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v4
-
-      - name: Initialize Terraform
-        working-directory: terraform/vultr
-        run: |
-          terraform init \
-            -backend-config=backend.hcl \
-            -input=false
-
-      - name: Terraform Validate
-        working-directory: terraform/vultr
-        run: terraform validate
-
-      - name: Terraform Plan
-        working-directory: terraform/vultr
-        run: |
-          terraform plan -out=tfplan \
-          -var="vultr_api_key=${{ secrets.VULTR_API_KEY }}" \
-          -var="user_ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
-          -var="ssh_key_name=${{ vars.VULTR_SSH_KEY_NAME }}" \
-          -var="my_snapshot_url=$IMAGE_URL"
-
-      - name: Apply Terraform configuration
-        working-directory: terraform/vultr
-        run: terraform apply -auto-approve tfplan
